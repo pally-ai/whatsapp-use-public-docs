@@ -389,6 +389,357 @@ paths:
           $ref: "#/components/responses/CommandAccepted"
         "401":
           $ref: "#/components/responses/Unauthorized"
+  /v1/whatsapp/conversations/{conversation_id}:
+    get:
+      tags: [WhatsApp]
+      summary: Get a conversation
+      operationId: getConversation
+      parameters:
+        - $ref: "#/components/parameters/ConnectionIdHeader"
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Conversation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /v1/whatsapp/messages/search:
+    get:
+      tags: [WhatsApp]
+      summary: Search messages
+      description: Full-text search across synced message bodies.
+      operationId: searchMessages
+      parameters:
+        - $ref: "#/components/parameters/ConnectionIdHeader"
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: conversation_id
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          description: Filter to messages from a sender JID.
+          schema:
+            type: string
+        - name: before
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: after
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - $ref: "#/components/parameters/Limit"
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Matching messages.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessagePage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/whatsapp/messages/{message_id}:
+    get:
+      tags: [WhatsApp]
+      summary: Get a message
+      operationId: getMessage
+      parameters:
+        - $ref: "#/components/parameters/ConnectionIdHeader"
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: conversation_id
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Message.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /v1/whatsapp/messages/{message_id}/context:
+    get:
+      tags: [WhatsApp]
+      summary: Get a message with surrounding context
+      operationId: getMessageContext
+      parameters:
+        - $ref: "#/components/parameters/ConnectionIdHeader"
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: conversation_id
+          in: query
+          schema:
+            type: string
+        - name: before
+          in: query
+          description: Number of messages to include before the target.
+          schema:
+            type: integer
+        - name: after
+          in: query
+          description: Number of messages to include after the target.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Message with context.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessagePage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /v1/whatsapp/unread/summary:
+    get:
+      tags: [WhatsApp]
+      summary: Unread summary
+      operationId: unreadSummary
+      parameters:
+        - $ref: "#/components/parameters/ConnectionIdHeader"
+        - name: include_archived
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Unread counts by conversation.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/whatsapp/unread/messages:
+    get:
+      tags: [WhatsApp]
+      summary: List unread messages
+      operationId: listUnreadMessages
+      parameters:
+        - $ref: "#/components/parameters/ConnectionIdHeader"
+        - name: conversation_id
+          in: query
+          schema:
+            type: string
+        - name: include_archived
+          in: query
+          schema:
+            type: boolean
+        - $ref: "#/components/parameters/Limit"
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Unread messages.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessagePage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/whatsapp/actionable-chats:
+    get:
+      tags: [WhatsApp]
+      summary: List chats needing attention
+      operationId: listActionableChats
+      parameters:
+        - $ref: "#/components/parameters/ConnectionIdHeader"
+        - name: include_archived
+          in: query
+          schema:
+            type: boolean
+        - name: direct_only
+          in: query
+          schema:
+            type: boolean
+        - name: groups_only
+          in: query
+          schema:
+            type: boolean
+        - $ref: "#/components/parameters/Limit"
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Actionable chats.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/whatsapp/mentions:
+    get:
+      tags: [WhatsApp]
+      summary: List mentions
+      operationId: listMentions
+      parameters:
+        - $ref: "#/components/parameters/ConnectionIdHeader"
+        - name: conversation_id
+          in: query
+          schema:
+            type: string
+        - name: unread_only
+          in: query
+          schema:
+            type: boolean
+        - name: before
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: after
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - $ref: "#/components/parameters/Limit"
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Mentions of the paired user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessagePage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/whatsapp/shared-items:
+    get:
+      tags: [WhatsApp]
+      summary: List shared items
+      description: Media, files, locations, polls, events, and calls.
+      operationId: listSharedItems
+      parameters:
+        - $ref: "#/components/parameters/ConnectionIdHeader"
+        - name: conversation_id
+          in: query
+          schema:
+            type: string
+        - name: content_types
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - $ref: "#/components/parameters/Limit"
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Shared items.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/whatsapp/important-messages:
+    get:
+      tags: [WhatsApp]
+      summary: List important messages
+      description: Starred, pinned, or kept messages.
+      operationId: listImportantMessages
+      parameters:
+        - $ref: "#/components/parameters/ConnectionIdHeader"
+        - name: conversation_id
+          in: query
+          schema:
+            type: string
+        - name: starred_only
+          in: query
+          schema:
+            type: boolean
+        - name: pinned_only
+          in: query
+          schema:
+            type: boolean
+        - name: kept_only
+          in: query
+          schema:
+            type: boolean
+        - $ref: "#/components/parameters/Limit"
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Important messages.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessagePage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /v1/whatsapp/groups/{group_jid}:
+    get:
+      tags: [WhatsApp]
+      summary: Get group info
+      operationId: getGroupInfo
+      parameters:
+        - $ref: "#/components/parameters/ConnectionIdHeader"
+        - name: group_jid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Group metadata and participants.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /v1/whatsapp/media/{message_id}:
     get:
       tags: [WhatsApp]
